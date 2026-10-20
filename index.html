@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="am" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የበቶ ከተማ አስተዳደር ውሃና ፍሳሽ አገልግሎት</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- PWA Manifest & Theme -->
+    <meta name="theme-color" content="#0e7490">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
+        %22name%22: %22የበቶ ከተማ ውሃና ፍሳሽ አገልግሎት%22,
+        %22short_name%22: %22የበቶ ውሃ%22,
+        %22start_url%22: %22./index.html%22,
+        %22display%22: %22standalone%22,
+        %22background_color%22: %22#ffffff%22,
+        %22theme_color%22: %22#0e7490%22,
+        %22icons%22: [{
+            %22src%22: %22https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/droplet.svg%22,
+            %22sizes%22: %22512x512%22,
+            %22type%22: %22image/svg+xml%22
+        }]
+    }">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ethiopic+Nyala&family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Ethiopic Nyala', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-cyan-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-cyan-700 to-blue-800 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse mb-3 md:mb-0">
+                <div class="bg-white p-2.5 rounded-2xl text-cyan-700 shadow-md">
+                    <i class="fa-solid fa-droplet text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide">የበቶ ከተማ አስተዳደር ውሃና ፍሳሽ አገልግሎት</h1>
+                    <p class="text-xs text-cyan-200">ዘመናዊ የደንበኞች እና የሂሳብ አያያዝ ሞባይል አፕ</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <button onclick="navigate('home')" class="px-4 py-2 rounded-xl bg-cyan-800 hover:bg-cyan-900 text-sm font-semibold transition shadow"><i class="fa-solid fa-home ml-1"></i> መነሻ ገጽ</button>
+                <div id="user-status-btn">
+                    <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-white text-cyan-700 hover:bg-cyan-50 text-sm font-bold transition shadow"><i class="fa-solid fa-right-to-bracket ml-1"></i> መግቢያ (Login)</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow container mx-auto px-4 py-8" id="main-content">
+        <!-- Dynamic Views -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-auto border-t border-slate-800">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2026 የበቶ ከተማ አስተዳደር ውሃና ፍሳሽ አገልግሎት. መብቱ በህግ የተጠበቀ ነው።</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative border border-slate-100">
+            <button onclick="closeLoginModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-6">
+                <div class="inline-block p-3 bg-cyan-100 text-cyan-700 rounded-full mb-2">
+                    <i class="fa-solid fa-user-shield text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800">ወደ ሲስተሙ መግቢያ</h3>
+                <p class="text-xs text-slate-500 mt-1">እባክዎ የተጠቃሚ ሚናዎን ይምረጡ</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">የፈቃድ/የሚና ዓይነት (Role)</label>
+                    <select id="login-role" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none text-sm">
+                        <option value="admin">👑 ዋና አስተዳዳሪ (Super Admin)</option>
+                        <option value="cashier">💰 ገንዘብ ተቀባይ (Cashier)</option>
+                        <option value="reader">🔧 ቴክኒክ / ቆጣሪ አንባቢ (Technician)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">የተጠቃሚ ስም (Username)</label>
+                    <input type="text" id="login-username" required class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="admin / cashier / reader">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">የይለፍ ቃል (Password)</label>
+                    <input type="password" id="login-password" required class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="••••••">
+                </div>
+                <button type="submit" class="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl transition shadow-lg shadow-cyan-600/30">ግባ (Login)</button>
+            </form>
+            <div class="mt-6 text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+                <p><strong>ዋና አስተዳዳሪ:</strong> admin / 123</p>
+                <p><strong>ገንዘብ ተቀባይ:</strong> cashier / 123</p>
+                <p><strong>ቴክኒክ/ቆጣሪ አንባቢ:</strong> reader / 123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="add-customer-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 relative border border-slate-100">
+            <button onclick="closeAddCustomerModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i class="fa-solid fa-user-plus text-cyan-600 ml-2"></i> አዲስ ደንበኛ መመዝገቢያ</h3>
+            <form onsubmit="saveNewCustomer(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">የደንበኛ ሙሉ ስም</label>
+                    <input type="text" id="new-name" required class="w-full px-4 py-2.5 border rounded-xl text-sm" placeholder="የደንበኛውን ስም ያስገቡ">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">ሜትር ቁጥር</label>
+                        <input type="text" id="new-meter" required class="w-full px-4 py-2.5 border rounded-xl text-sm" placeholder="ለምሳሌ M-503">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">የሜትር ዓይነት</label>
+                        <select id="new-type" class="w-full px-4 py-2.5 border rounded-xl text-sm">
+                            <option value="ግል">ግል (Personal)</option>
+                            <option value="ድርጅት">ድርጅት (Business)</option>
+                            <option value="መንግስት">መንግስት (Government)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">ቀበሌ / ከ/ከተማ</label>
+                        <select id="new-subcity" class="w-full px-4 py-2.5 border rounded-xl text-sm">
+                            <option value="ቀበሌ 01">ቀበሌ 01</option>
+                            <option value="ቀበሌ 02">ቀበሌ 02</option>
+                            <option value="ቀበሌ 03">ቀበሌ 03</option>
+                            <option value="ቀበሌ 04">ቀበሌ 04</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">የመጨረሻ የመክፈያ ቀን (Deadline)</label>
+                        <input type="date" id="new-deadline" required class="w-full px-4 py-2 border rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">ስልክ ቁጥር</label>
+                    <input type="text" id="new-phone" required class="w-full px-4 py-2.5 border rounded-xl text-sm" placeholder="0911223344">
+                </div>
+                <button type="submit" class="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl transition shadow-md">ደንበኛ መዝግብ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        let db = {
+            currentUser: null,
+            currentRole: null,
+            currentMonth: 'ሰኔ 2018',
+            monthsData: {
+                'ሰኔ 2018': [
+                    { id: 1, name: 'አበበ ከበደ', meterNo: 'M-501', type: 'ግል', subCity: 'ቀበሌ 01', phone: '0911223344', deadline: '2026-07-10', prevReading: 100, currReading: 130, consumption: 30, bill: 850, paid: false, fine: 0 },
+                    { id: 2, name: 'መሀመድ አሊ', meterNo: 'M-502', type: 'ድርጅት', subCity: 'ቀበሌ 02', phone: '0922334455', deadline: '2026-07-10', prevReading: 200, currReading: 250, consumption: 50, bill: 2200, paid: true, fine: 0 }
+                ]
+            },
+            tariffs: {
+                ግል: { tier1: 15.00, tier2: 25.00, tier3: 40.00 },
+                ድርጅት: { tier1: 25.00, tier2: 40.00, tier3: 60.00 },
+                መንግስት: { tier1: 20.00, tier2: 30.00, tier3: 50.00 }
+            },
+            logs: [],
+            recycleBin: [],
+            feedback: [],
+            credentials: { admin: '123', cashier: '123', reader: '123' }
+        };
+
+        function getActiveCustomers() {
+            if (!db.monthsData[db.currentMonth]) {
+                db.monthsData[db.currentMonth] = [];
+            }
+            return db.monthsData[db.currentMonth];
+        }
+
+        function initApp() {
+            renderHome();
+        }
+
+        function navigate(view) {
+            if (view === 'home') renderHome();
+            else if (view === 'dashboard') renderDashboardByRole();
+        }
+
+        function calculateTierBill(consumption, customerType) {
+            let t = db.tariffs[customerType] || db.tariffs['ግል'];
+            let total = 0;
+            if (consumption <= 10) {
+                total = consumption * t.tier1;
+            } else if (consumption <= 20) {
+                total = (10 * t.tier1) + ((consumption - 10) * t.tier2);
+            } else {
+                total = (10 * t.tier1) + (10 * t.tier2) + ((consumption - 20) * t.tier3);
+            }
+            return total;
+        }
+
+        // --- Home View ---
+        function renderHome() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-8 my-4">
+                    <div class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 text-center relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-cyan-100 rounded-full blur-2xl opacity-60"></div>
+                        <h2 class="text-2xl font-extrabold text-slate-800 mb-2">የውሃ ፍጆታ እና ሂሳብ ማጣሪያ</h2>
+                        <p class="text-slate-600 text-sm mb-6">የቆጣሪ ቁጥርዎን በማስገባት ወራዊ ፍጆታዎን ይመልከቱ እና ይክፈሉ። (የአሁን ወር: <span class="text-cyan-700 font-bold">${db.currentMonth}</span>)</p>
+                        
+                        <div class="flex gap-2 max-w-md mx-auto mb-6">
+                            <input type="text" id="search-meter" placeholder="የቆጣሪ ቁጥር (ለምሳሌ M-501)" class="flex-grow px-4 py-3 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:outline-none text-sm shadow-sm">
+                            <button onclick="searchCustomerBill()" class="px-7 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-2xl transition shadow-md">ፈልግ</button>
+                        </div>
+                        <div id="search-result" class="text-right"></div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-comment-dots text-cyan-600 ml-2"></i> አስተያየት፣ ጥቆማ እና የፎቶ ማያያዣ</h3>
+                        <form onsubmit="submitFeedback(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input type="text" id="fb-name" placeholder="ስምዎ (አማራጭ)" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none">
+                                <input type="file" id="fb-file" class="w-full px-3 py-2 border rounded-xl text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700">
+                            </div>
+                            <textarea id="fb-msg" rows="3" placeholder="አስተያየትዎን ወይም የውሃ መስመር ጥቆማዎን እዚህ ይጻፉ..." required class="w-full px-4 py-3 border rounded-xl text-sm focus:outline-none"></textarea>
+                            <button type="submit" class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold rounded-xl transition shadow">ጥቆማ ላክ</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function searchCustomerBill() {
+            const val = document.getElementById('search-meter').value.trim();
+            const resDiv = document.getElementById('search-result');
+            const customers = getActiveCustomers();
+            const cust = customers.find(c => c.meterNo.toLowerCase() === val.toLowerCase());
+            if (!cust) {
+                resDiv.innerHTML = `<p class="text-red-500 text-center text-sm font-semibold p-4 bg-red-50 rounded-2xl">የተሳሳተ የቆጣሪ ቁጥር ወይም በዚህ ወር መረጃ አልተገኘም።</p>`;
+                return;
+            }
+            let totalDue = cust.bill + cust.fine;
+            resDiv.innerHTML = `
+                <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-2xl border border-cyan-100 text-sm space-y-3 text-right">
+                    <p><strong>የደንበኛ ስም:</strong> ${cust.name} (${cust.type})</p>
+                    <p><strong>የመጨረሻ የመክፈያ ቀን (Deadline):</strong> <span class="text-rose-600 font-bold">${cust.deadline}</span></p>
+                    <p><strong>የፍጆታ መጠን:</strong> ${cust.consumption} ሜ/ኩ</p>
+                    <p><strong>ወራዊ ክፍያ:</strong> <span class="text-cyan-800 font-extrabold text-base">${totalDue} ብር</span> ${cust.fine > 0 ? `<span class="text-red-600 font-bold">(ሂሳብ: ${cust.bill} + ቅጣት: ${cust.fine})</span>` : ''}</p>
+                    <p><strong>የክፍያ ሁኔታ:</strong> <span class="${cust.paid ? 'text-green-600 font-extrabold' : 'text-red-600 font-extrabold'}">${cust.paid ? 'ተከፍሏል' : 'አልተከፈለም'}</span></p>
+                    ${!cust.paid ? `
+                        <div class="pt-3 border-t space-y-2">
+                            <p class="text-xs font-bold text-slate-700">የክፍያ አማራጮች ይምረጡ (ሙሉውን ${totalDue} ብር ብቻ መክፈል ይቻላል)፦</p>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                <button onclick="makeStrictPayment(${cust.id}, 'ንግድ ባንክ USSD *889#')" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-mobile-screen-button ml-1"></i> ንግድ ባንክ (*889#)</button>
+                                <button onclick="makeStrictPayment(${cust.id}, 'ቴሌብር (Telebirr)')" class="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-wallet ml-1"></i> ቴሌብር</button>
+                                <button onclick="makeStrictPayment(${cust.id}, 'ሲቢኢ ብር (CBE Birr)')" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-building-columns ml-1"></i> ሲቢኢ ብር</button>
+                                <button onclick="makeStrictPayment(${cust.id}, 'አዋሽ ባንክ (Awash Bank)')" class="py-2.5 px-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-landmark ml-1"></i> አዋሽ ባንክ</button>
+                                <button onclick="makeStrictPayment(${cust.id}, 'ኤም-ፔሳ (M-Pesa)')" class="py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-money-bill-transfer ml-1"></i> ኤም-ፔሳ</button>
+                                <button onclick="makeStrictPayment(${cust.id}, 'ኦሞ ባንክ USSD *818#')" class="py-2.5 px-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow transition text-xs"><i class="fa-solid fa-phone ml-1"></i> ኦሞ ባንክ (*818#)</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function makeStrictPayment(id, method) {
+            let customers = getActiveCustomers();
+            let cust = customers.find(c => c.id === id);
+            if (!cust) return;
+
+            let totalRequired = cust.bill + cust.fine;
+            let enteredAmount = prompt(`እባክዎ መክፈል የሚፈልጉትን ጠቅላላ መጠን ያስገቡ (መክፈል ያለብዎት ሙሉ ዕዳ: ${totalRequired} ብር):`, totalRequired);
+            if (enteredAmount === null) return;
+
+            let paidAmt = parseFloat(enteredAmount);
+            if (isNaN(paidAmt) || paidAmt < totalRequired) {
+                alert(`⚠️ የተሳሳተ ወይም ያልተሟላ ክፍያ! ሙሉውን ${totalRequired} ብር ሳይከፍሉ ሲስተሙ ክፍያውን መቀበል አይችልም።`);
+            } else {
+                cust.paid = true;
+                db.logs.push({ action: `ኦንላይን ክፍያ ተፈጸመ (${method}): ${cust.name} - ${paidAmt} ብር (ሙሉ ክፍያ)`, time: new Date().toLocaleString() });
+                alert(`እንኳን ደስ አሎት! የ ${totalRequired} ብር ሙሉ ክፍያ በ ${method} በተሳካ ሁኔታ ተፈጽሟል።`);
+                searchCustomerBill();
+            }
+        }
+
+        function submitFeedback(e) {
+            e.preventDefault();
+            const name = document.getElementById('fb-name').value || 'ያልታወቀ ደንበኛ';
+            const msg = document.getElementById('fb-msg').value;
+            db.feedback.push({ name, msg, date: new Date().toLocaleString() });
+            alert('አስተያየትዎ እና ጥቆማዎ በተሳካ ሁኔታ ተቀባይነት አግኝቷል!');
+            document.getElementById('fb-msg').value = '';
+            document.getElementById('fb-name').value = '';
+        }
+
+        // --- Login Modal Controls ---
+        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById('login-role').value;
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+
+            if (db.credentials[role] && u === role && p === db.credentials[role]) {
+                db.currentUser = u;
+                db.currentRole = role;
+                closeLoginModal();
+                updateHeaderUserStatus();
+                navigate('dashboard');
+            } else {
+                alert('የተሳሳተ ሚና፣ የተጠቃሚ ስም ወይም የይለፍ ቃል!');
+            }
+        }
+
+        function updateHeaderUserStatus() {
+            const container = document.getElementById('user-status-btn');
+            let roleLabel = db.currentRole === 'admin' ? 'ዋና አስተዳዳሪ' : (db.currentRole === 'cashier' ? 'ገንዘብ ተቀባይ' : 'ቴክኒክ/ቆጣሪ አንባቢ');
+            container.innerHTML = `
+                <div class="flex items-center space-x-2 space-x-reverse">
+                    <span class="text-xs bg-cyan-900 text-cyan-200 px-3 py-1.5 rounded-xl font-bold"><i class="fa-solid fa-user-check ml-1"></i> ${roleLabel}</span>
+                    <button onclick="logout()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow">ወጣ (Logout)</button>
+                </div>
+            `;
+        }
+
+        function logout() {
+            db.currentUser = null;
+            db.currentRole = null;
+            document.getElementById('user-status-btn').innerHTML = `
+                <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-white text-cyan-700 hover:bg-cyan-50 text-sm font-bold transition shadow"><i class="fa-solid fa-right-to-bracket ml-1"></i> መግቢያ (Login)</button>
+            `;
+            navigate('home');
+        }
+
+        function navigate(view) {
+            if (view === 'home') renderHome();
+            else if (view === 'dashboard') renderDashboardByRole();
+        }
+
+        function renderDashboardByRole() {
+            if (db.currentRole === 'reader') {
+                renderReaderDashboard();
+            } else {
+                renderAdminOrCashierDashboard();
+            }
+        }
+
+        function renderReaderDashboard() {
+            const customers = getActiveCustomers();
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-xl border my-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-screwdriver-wrench text-cyan-600 ml-2"></i> ቆጣሪ አንባቢ እና ቴክኒክ ዳሽቦርድ (${db.currentMonth})</h2>
+                            <button onclick="openAddCustomerModal()" class="px-3 py-1.5 bg-cyan-600 text-white hover:bg-cyan-700 rounded-xl text-xs font-bold">+ አዲስ ደንበኛ</button>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">ሜትር ቁጥር ይምረጡ</label>
+                                <select id="reader-meter" class="w-full px-4 py-3 border rounded-xl text-sm">
+                                    ${customers.map(c => `<option value="${c.meterNo}">${c.name} (${c.meterNo} -${c.type})</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">የዚህ ወር አዲስ ንባብ (Current Reading)</label>
+                                <input type="number" id="reader-curr" class="w-full px-4 py-3 border rounded-xl text-sm" placeholder="አዲሱን ንባብ ያስገቡ">
+                            </div>
+                            <button onclick="saveReading()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-lg transition">ንባብ መዝግብ እና ፍጆታ አሰላ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveReading() {
+            const mNo = document.getElementById('reader-meter').value;
+            const curr = parseFloat(document.getElementById('reader-curr').value);
+            const customers = getActiveCustomers();
+            const cust = customers.find(c => c.meterNo === mNo);
+            if (isNaN(curr) || curr < cust.prevReading) {
+                alert('እባክዎ ትክክለኛ እና ካለፈው ንባብ የሚበልጥ ንባብ ያስገቡ!');
+                return;
+            }
+            cust.prevReading = cust.currReading;
+            cust.currReading = curr;
+            cust.consumption = cust.currReading - cust.prevReading;
+            cust.bill = calculateTierBill(cust.consumption, cust.type);
+
+            db.logs.push({ action: `ቴክኒክ/ቆጣሪ አንባቢ: ንባብ መዝግቧል - ${cust.name} (${mNo})`, time: new Date().toLocaleString() });
+            alert('ንባብ በተሳካ ሁኔታ ተመዝግቧል!');
+            renderDashboardByRole();
+        }
+
+        function renderAdminOrCashierDashboard() {
+            const customers = getActiveCustomers();
+            const main = document.getElementById('main-content');
+            const isSuperAdmin = db.currentRole === 'admin';
+
+            main.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-md border gap-4">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <h2 class="text-xl font-extrabold text-slate-800"><i class="fa-solid fa-gauge-high text-cyan-600 ml-2"></i> ${isSuperAdmin ? 'የዋና አስተዳዳሪ ዳሽቦርድ' : 'የገንዘብ ተቀባይ ዳሽቦርድ'}</h2>
+                            <span class="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-xs font-bold">${db.currentMonth}</span>
+                        </div>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="select-month" onchange="changeMonth(this.value)" class="px-3 py-2 border rounded-xl text-sm font-semibold bg-slate-50">
+                                <option value="ሰኔ 2018" ${db.currentMonth==='ሰኔ 2018'?'selected':''}>ሰኔ 2018</option>
+                                <option value="ሐምሌ 2018" ${db.currentMonth==='ሐምሌ 2018'?'selected':''}>ሐምሌ 2018</option>
+                                <option value="ነሐሴ 2018" ${db.currentMonth==='ነሐሴ 2018'?'selected':''}>ነሐሴ 2018</option>
+                            </select>
+                            ${isSuperAdmin ? `<button onclick="advanceMonth()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">ቀጣይ ወር (Next)</button>` : ''}
+                            <button onclick="navigate('home')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-right ml-1"></i> መውጫ (Back)</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md border space-y-4">
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="openAddCustomerModal()" class="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-user-plus ml-1"></i> አዲስ ደንበኛ መዝግብ</button>
+                            <button onclick="exportToExcel()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-file-excel ml-1"></i> መረጃ በ Excel አውርድ</button>
+                            <button onclick="sendSMSAll()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-sms ml-1"></i> ለሁሉም SMS ላክ</button>
+                            
+                            ${isSuperAdmin ? `
+                                <button onclick="openTariffModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-sliders ml-1"></i> የታሪፍ ማሻሻያ</button>
+                                <button onclick="openLogsModal()" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-history ml-1"></i> የሲስተም ሎግ (Logs)</button>
+                                <button onclick="openRecycleBinModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-trash-can ml-1"></i> ሪሳይክለር ቢን</button>
+                                <button onclick="openSettingsModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow"><i class="fa-solid fa-key ml-1"></i> የይለፍ ቃል መቀየሪያ</button>
+                            ` : ''}
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse" id="customer-table">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 text-sm">
+                                        <th class="p-3 border">ስም</th>
+                                        <th class="p-3 border">ሜትር ቁጥር</th>
+                                        <th class="p-3 border">ዓይነት</th>
+                                        <th class="p-3 border">ቀበሌ</th>
+                                        <th class="p-3 border">መክፈያ ቀን</th>
+                                        <th class="p-3 border">ፍጆታ (ሜ/ኩ)</th>
+                                        <th class="p-3 border">ሂሳብ</th>
+                                        <th class="p-3 border">ቅጣት</th>
+                                        <th class="p-3 border">ሁኔታ</th>
+                                        <th class="p-3 border">እርምጃዎች</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm" id="customer-table-body">
+                                    ${renderCustomerRows(customers)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCustomerRows(list) {
+            if (list.length === 0) return `<tr><td colspan="10" class="p-4 text-center text-slate-500">ምንም መረጃ የለም።</td></tr>`;
+            const isSuperAdmin = db.currentRole === 'admin';
+
+            return list.map(c => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 border">${c.name}</td>
+                    <td class="p-3 border">${c.meterNo}</td>
+                    <td class="p-3 border"><span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded-lg text-xs font-bold">${c.type}</span></td>
+                    <td class="p-3 border">${c.subCity}</td>
+                    <td class="p-3 border text-rose-600 font-semibold">${c.deadline}</td>
+                    <td class="p-3 border">${c.consumption}</td>
+                    <td class="p-3 border">${c.bill} ብር</td>
+                    <td class="p-3 border text-red-600 font-semibold">${c.fine > 0 ? c.fine + ' ብር' : '-'}</td>
+                    <td class="p-3 border"><span class="${c.paid ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">${c.paid ? 'ተከፍሏል' : 'አልተከፈለም'}</span></td>
+                    <td class="p-3 border space-x-1 space-x-reverse">
+                        ${!c.paid ? `<button onclick="markPaid(${c.id})" class="px-2.5 py-1 bg-green-600 text-white rounded-lg text-xs font-bold shadow">ክፍያ</button>` : ''}
+                        <button onclick="printReceipt(${c.id})" class="px-2.5 py-1 bg-cyan-700 hover:bg-cyan-800 text-white rounded-lg text-xs font-bold shadow"><i class="fa-solid fa-print ml-1"></i> አድቫይስ</button>
+                        ${isSuperAdmin ? `<button onclick="deleteCustomer(${c.id})" class="px-2.5 py-1 bg-red-600 text-white rounded-lg text-xs font-bold shadow"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function printReceipt(id) {
+            const customers = getActiveCustomers();
+            const cust = customers.find(c => c.id === id);
+            if (!cust) return;
+            let totalDue = cust.bill + cust.fine;
+
+            let printWindow = window.open('', '', 'height=700,width=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="am" dir="ltr">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>የባንክ አድቫይስ ደረሰኝ - ${cust.meterNo}</title>
+                    <style>
+                        @page { size: A5; margin: 8mm; }
+                        body { font-family: 'Inter', sans-serif; background: #fff; color: #000; padding: 5px; font-size: 13px; }
+                        .advice-box { border: 2px solid #0e7490; padding: 15px; border-radius: 8px; width: 100%; box-sizing: border-box; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 2px solid #0e7490; padding-bottom: 8mm; margin-bottom: 12px; }
+                        .header h2 { font-size: 16px; font-weight: bold; color: #0e7490; margin: 0; }
+                        .header p { font-size: 11px; color: #555; margin: 3px 0 0; }
+                        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+                        .info-table td { padding: 5px 2px; border-bottom: 1px solid #e2e8f0; }
+                        .footer-signs { display: flex; justify-content: space-between; margin-top: 30px; font-size: 11px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="advice-box">
+                        <div class="header">
+                            <h2>የበቶ ከተማ አስተዳደር ውሃና ፍሳሽ አገልግሎት</h2>
+                            <p>ኦፊሴላዊ የክፍያ ማስታወሻ / Payment Bank Advice Slip</p>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
+                            <span><strong>ቀን:</strong> ${new Date().toLocaleDateString()}</span>
+                            <span><strong>የማስታወሻ ቁጥር:</strong> ADV-${Math.floor(100000 + Math.random() * 900000)}</span>
+                        </div>
+                        <table class="info-table">
+                            <tr><td><strong>የደንበኛ ስም:</strong></td><td style="text-align: right;">${cust.name}</td></tr>
+                            <tr><td><strong>የሜትር ቁጥር:</strong></td><td style="text-align: right;">${cust.meterNo}</td></tr>
+                            <tr><td><strong>የተቋም ዓይነት:</strong></td><td style="text-align: right;">${cust.type}</td></tr>
+                            <tr><td><strong>ቀበሌ / ከ/ከተማ:</strong></td><td style="text-align: right;">${cust.subCity}</td></tr>
+                            <tr><td><strong>የፍጆታ ወር:</strong></td><td style="text-align: right;">${db.currentMonth}</td></tr>
+                            <tr><td><strong>የውሃ ፍጆታ መጠን:</strong></td><td style="text-align: right;">${cust.consumption} ሜ/ኩ (m³)</td></tr>
+                            <tr><td><strong>የወር ሂሳብ ክፍያ:</strong></td><td style="text-align: right;">${cust.bill} ብር</td></tr>
+                            <tr><td><strong>የቅጣት መጠን:</strong></td><td style="text-align: right; color: red;">${cust.fine} ብር</td></tr>
+                            <tr style="background: #f8fafc; font-weight: bold;"><td style="padding: 8px 2px; border-top: 2px solid #333;"><strong>ጠቅላላ የሚከፈል ዕዳ:</strong></td><td style="padding: 8px 2px; border-top: 2px solid #333; text-align: right; color: #0e7490;">${totalDue} ብር</td></tr>
+                            <tr><td style="padding: 6px 2px; border-top: 1px solid #ddd;"><strong>የክፍያ ሁኔታ:</strong></td><td style="padding: 6px 2px; border-top: 1px solid #ddd; text-align: right; font-weight: bold; color: ${cust.paid ? 'green' : 'red'};">${cust.paid ? 'ተከፍሏል (Paid)' : 'አልተከፈለም (Unpaid)'}</td></tr>
+                        </table>
+                        <div class="footer-signs">
+                            <div>ሰጣሚው ፊርማ: _________________</div>
+                            <div>ተቀባይ/ባንክ ማህተም: _________________</div>
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.onafterprint = function() { window.close(); };
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function openTariffModal() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማስተካከል ስልጣን የለዎትም።'); return; }
+            let cat = prompt('የትኛውን ተቋም ታሪፍ ማስተካከል ይፈልጋሉ? (ግል, ድርጅት, መንግስት):', 'ግል');
+            if (cat && db.tariffs[cat]) {
+                let t = db.tariffs[cat];
+                let d1 = prompt(`${cat} - ደረጃ 1 (0-10 ሜ/ኩ) ዋጋ:`, t.tier1);
+                let d2 = prompt(`${cat} - ደረጃ 2 (11-20 ሜ/ኩ) ዋጋ:`, t.tier2);
+                let d3 = prompt(`${cat} - ደረጃ 3 (ከ20 ሜ/ኩ በላይ) ዋጋ:`, t.tier3);
+                if (d1 && d2 && d3) {
+                    db.tariffs[cat].tier1 = parseFloat(d1);
+                    db.tariffs[cat].tier2 = parseFloat(d2);
+                    db.tariffs[cat].tier3 = parseFloat(d3);
+                    alert(`የ ${cat} ታሪፍ በተሳካ ሁኔታ ተሻሽሏል!`);
+                }
+            } else if (cat) { alert('የተሳሳተ የተቋም ዓይነት።'); }
+        }
+
+        function openAddCustomerModal() { document.getElementById('add-customer-modal').classList.remove('hidden'); }
+        function closeAddCustomerModal() { document.getElementById('add-customer-modal').classList.add('hidden'); }
+
+        function saveNewCustomer(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-name').value.trim();
+            const meterNo = document.getElementById('new-meter').value.trim();
+            const type = document.getElementById('new-type').value;
+            const subCity = document.getElementById('new-subcity').value;
+            const deadline = document.getElementById('new-deadline').value;
+            const phone = document.getElementById('new-phone').value.trim();
+
+            getActiveCustomers().push({
+                id: Date.now(), name, meterNo, type, subCity, phone, deadline,
+                prevReading: 0, currReading: 0, consumption: 0, bill: 0, paid: false, fine: 0
+            });
+            db.logs.push({ action: `አዲስ ደንበኛ ተመዝግቧል: ${name} (${meterNo} - ${type})`, time: new Date().toLocaleString() });
+            closeAddCustomerModal();
+            alert('ደንበኛው በተሳካ ሁኔታ ተመዝግቧል!');
+            renderDashboardByRole();
+        }
+
+        function changeMonth(m) {
+            db.currentMonth = m;
+            if (!db.monthsData[m]) db.monthsData[m] = [];
+            renderDashboardByRole();
+        }
+
+        function advanceMonth() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማስተካከል ስልጣን የለዎትም።'); return; }
+            const months = ['ሰኔ 2018', 'ሐምሌ 2018', 'ነሐሴ 2018', 'መስከረም 2019'];
+            let idx = months.indexOf(db.currentMonth);
+            if (idx < months.length - 1) {
+                db.currentMonth = months[idx + 1];
+                if (!db.monthsData[db.currentMonth]) {
+                    let prev = db.monthsData[months[idx]] || [];
+                    db.monthsData[db.currentMonth] = prev.map(c => ({
+                        ...c, id: Date.now() + Math.random(),
+                        prevReading: c.currReading, currReading: c.currReading,
+                        consumption: 0, bill: 0, paid: false, fine: 0
+                    }));
+                }
+                renderDashboardByRole();
+                alert(`ወደ ${db.currentMonth} ተሸጋግሯል!`);
+            } else { alert('የመጨረሻው ወር ላይ ደርሰዋል!'); }
+        }
+
+        function markPaid(id) {
+            const cust = getActiveCustomers().find(c => c.id === id);
+            if (cust) {
+                cust.paid = true;
+                db.logs.push({ action: `ክፍያ ተፈጸመ: ${cust.name} - ${cust.bill + cust.fine} ብር`, time: new Date().toLocaleString() });
+                renderDashboardByRole();
+            }
+        }
+
+        function deleteCustomer(id) {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማስተካከል ስልጣን የለዎትም።'); return; }
+            if (confirm('ይህን ደንበኛ መሰረዝ ይፈልጋሉ?')) {
+                let customers = getActiveCustomers();
+                let idx = customers.findIndex(c => c.id === id);
+                if (idx !== -1) {
+                    db.recycleBin.push(customers[idx]);
+                    customers.splice(idx, 1);
+                    renderDashboardByRole();
+                }
+            }
+        }
+
+        function applyFines() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማስተካከል ስልጣን የለዎትም።'); return; }
+            getActiveCustomers().forEach(c => { if (!c.paid && c.bill > 0) c.fine = 50; });
+            alert('ቅጣት ተሰልቷል!');
+            renderDashboardByRole();
+        }
+
+        function exportToExcel() {
+            let csv = "ስም,ሜትር ቁጥር,ዓይነት,ቀበሌ,መክፈያ ቀን,ፍጆታ,ሂሳብ,ሁኔታ\n";
+            getActiveCustomers().forEach(c => {
+                csv += `${c.name},${c.meterNo},${c.type},${c.subCity},${c.deadline},${c.consumption},${c.bill},${c.paid ? 'ተከፍሏል' : 'አልተከፈለም'}\n`;
+            });
+            let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `beto_water_report_${db.currentMonth}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function sendSMSAll() { alert('SMS ለሁሉም ደንበኞች ተልኳል!'); }
+        function openLogsModal() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማየት ስልጣን የለዎትም።'); return; }
+            alert('የሲስተም ሎግ:\n' + (db.logs.map(l => l.action).join('\n') || 'ባዶ ነው።'));
+        }
+        function openRecycleBinModal() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማየት ስልጣን የለዎትም።'); return; }
+            alert('ሪሳይክለር ቢን ቆሻሻ ማጠራቀሚያ');
+        }
+        function openSettingsModal() {
+            if (db.currentRole !== 'admin') { alert('⛔ ይቅርታ! ይህንን የማስተካከል ስልጣን የለዎትም።'); return; }
+            let r = prompt('የትኛውን የይለፍ ቃል መቀየር ይፈልጋሉ? (admin, cashier, reader):');
+            if (r && db.credentials[r]) {
+                let pw = prompt('አዲሱን የይለፍ ቃል ያስገቡ:');
+                if (pw) { db.credentials[r] = pw; alert('የይለፍ ቃል በተሳካ ሁኔታ ተቀይሯል!'); }
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
